@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>WebCore Admin</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#070b18;
+  color:white;
+}
+
+/* NAV */
+.nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px;
+  background:#0b1224;
+  border-bottom:1px solid #1f2a44;
+}
+
+/* LOGIN */
+.login{
+  max-width:400px;
+  margin:120px auto;
+  background:#0f1932;
+  padding:20px;
+  border-radius:12px;
+  border:1px solid #1f2a44;
+}
+
+/* INPUT */
+input{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:8px;
+  border:1px solid #1f2a44;
+  background:#0b1224;
+  color:white;
+  box-sizing:border-box;
+}
+
+/* PANEL */
+.container{
+  max-width:900px;
+  margin:20px auto;
+}
+
+/* TICKET */
+.ticket{
+  background:#0f1932;
+  padding:15px;
+  margin:10px 0;
+  border-radius:10px;
+  border:1px solid #1f2a44;
+}
+
+/* PRIORITY */
+.urgence{border-left:5px solid #000;}
+.haute{border-left:5px solid #ff3b3b;}
+.moyenne{border-left:5px solid #ff9800;}
+.basse{border-left:5px solid #4dff88;}
+
+/* BUTTON */
+button{
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  color:white;
+  background:#2f7cff;
+}
+
+/* HIDE */
+.hidden{display:none;}
+  
+  .back-contact{
+  display:block;
+  text-align:center;
+  margin-top:10px;
+  padding:10px;
+  background:#1f2a44;
+  color:white;
+  text-decoration:none;
+  border-radius:8px;
+  border:1px solid #2f7cff;
+  transition:0.2s;
+}
+
+.back-contact:hover{
+  background:#2f7cff;
+  transform:translateY(-2px);
+}
+  
+</style>
+</head>
+
+<body>
+
+<!-- NAV -->
+<div class="nav">
+
+  <b>🛠 WebCore Admin</b>
+
+  <button onclick="logout()" style="background:#ff4d4d;">Logout</button>
+
+</div>
+
+<!-- LOGIN BOX -->
+<div id="loginBox" class="login">
+
+  <h2>🔐 Login Staff</h2>
+
+  <input id="user" placeholder="admin / mod / founder">
+  <input id="pass" type="password" placeholder="password">
+
+  <button onclick="login()">Connexion</button>
+<a href="contact.html" class="back-contact">⬅ Retour Contact</a>
+</div>
+
+<!-- PANEL -->
+<div id="panel" class="hidden">
+
+  <div class="container">
+
+    <h2>📌 Tickets</h2>
+    <div id="list"></div>
+
+  </div>
+
+</div>
+
+<script>
+
+/* USERS */
+const users = {
+  admin:{pass:"1234",role:"admin"},
+  mod:{pass:"1234",role:"mod"},
+  founder:{pass:"1234",role:"founder"}
+};
+
+let role = localStorage.getItem("role");
+let msgs = JSON.parse(localStorage.getItem("msgs") || "[]");
+
+/* SAVE */
+function save(){
+  localStorage.setItem("msgs",JSON.stringify(msgs));
+}
+
+/* LOGIN */
+function login(){
+
+  const u = document.getElementById("user").value.trim();
+  const p = document.getElementById("pass").value.trim();
+
+  if(!users[u]){
+    alert("❌ utilisateur inconnu");
+    return;
+  }
+
+  if(users[u].pass !== p){
+    alert("❌ mauvais mot de passe");
+    return;
+  }
+
+  role = users[u].role;
+  localStorage.setItem("role",role);
+
+  openPanel();
+}
+
+/* OPEN PANEL */
+function openPanel(){
+  document.getElementById("loginBox").classList.add("hidden");
+  document.getElementById("panel").classList.remove("hidden");
+  render();
+}
+
+/* LOGOUT */
+function logout(){
+  localStorage.removeItem("role");
+  location.reload();
+}
+
+/* PRIORITY */
+function setPriority(i,val){
+  msgs[i].priority = val;
+  save();
+  render();
+}
+
+/* ASSIGN */
+function assign(i){
+
+  if(msgs[i].assignedTo && role !== "founder"){
+    alert("déjà pris");
+    return;
+  }
+
+  msgs[i].assignedTo = role;
+  save();
+  render();
+}
+
+/* DELETE */
+function del(i){
+  if(role !== "founder") return alert("interdit");
+  msgs.splice(i,1);
+  save();
+  render();
+}
+
+/* RENDER */
+function render(){
+
+  msgs = JSON.parse(localStorage.getItem("msgs") || "[]");
+
+  document.getElementById("list").innerHTML =
+  msgs.map((m,i)=>`
+
+    <div class="ticket ${m.priority}">
+
+      👤 ${m.name}<br>
+      📧 ${m.email}<br>
+      📌 ${m.subject}<br>
+      💬 ${m.reason}<br><br>
+
+      🚨 ${m.priority}<br>
+      🛠️ ${m.assignedTo || "personne"}<br><br>
+
+      <button onclick="setPriority(${i},'urgence')">⚫ Urgence</button>
+      <button onclick="setPriority(${i},'haute')">🔴 Haute</button>
+      <button onclick="setPriority(${i},'moyenne')">🟠 Moyenne</button>
+      <button onclick="setPriority(${i},'basse')">🟢 Basse</button>
+
+      <br>
+
+      <button onclick="assign(${i})">👤 Prendre</button>
+      <button onclick="del(${i})">🗑 Supprimer</button>
+
+    </div>
+
+  `).join("");
+}
+
+/* AUTO LOGIN */
+if(role){
+  openPanel();
+}
+
+</script>
+
+</body>
+</html>

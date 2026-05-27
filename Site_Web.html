@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebCore | Shop</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#071022;
+  color:white;
+}
+
+/* TOP BAR */
+.top{
+  display:flex;
+  justify-content:space-between;
+  padding:10px;
+  background:#0f1f3d;
+}
+
+/* CART */
+.cartBox{
+  margin:10px;
+  padding:10px;
+  background:#0b1730;
+  border-radius:10px;
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:10px;
+  padding:10px;
+}
+
+.card{
+  background:#0f1f3d;
+  padding:10px;
+  border-radius:10px;
+}
+
+button{
+  width:100%;
+  margin-top:8px;
+  padding:8px;
+  border:none;
+  border-radius:8px;
+  background:#1e90ff;
+  color:white;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+<div class="navbar">
+
+  <div class="logo">
+    <img src="image.png">
+    <strong>WebCore</strong>
+  </div>
+
+  <div class="nav-scroll">
+    <a href="accueil.html">🏠 Accueil</a>
+    <a href="services.html">⚙️ Services</a>
+    <a href="contact.html">📩 Contact</a>
+    <a href="new_users.html">🆕 Nouveaux</a>
+    <a href="pass_admin.html">🔐 Admin</a>
+    <a href="événements.html">🎉 Events</a>
+    <a href="compte.html">👤 Compte</a>
+  </div>
+</div>
+<div class="top">
+  <strong>🛒 WebCore Shop</strong>
+  <div>🪙 Coins: <b id="coinsUI">0</b></div>
+</div>
+
+<div class="cartBox">
+  🧾 Panier: <span id="count">0</span><br>
+  💰 Total: <span id="total">0</span> coins
+</div>
+
+<div class="cartBox">
+  <h3>Panier</h3>
+  <div id="items"></div>
+  <button onclick="checkout()">Acheter</button>
+</div>
+
+<div class="grid">
+
+  <div class="card">
+    <h3>Site gratuit</h3>
+    <h2 class="price">0</h2>
+    <button onclick="add('Site gratuit',0)">Ajouter</button>
+  </div>
+
+  <div class="card">
+    <h3>Site vitrine</h3>
+    <h2 class="price">500</h2>
+    <button onclick="add('Site vitrine',500)">Ajouter</button>
+  </div>
+
+  <div class="card">
+    <h3>Optimisé</h3>
+    <h2 class="price">1200</h2>
+    <button onclick="add('Optimisé',1200)">Ajouter</button>
+  </div>
+
+  <div class="card">
+    <h3>Pack Basic</h3>
+    <h2 class="price">2500</h2>
+    <button onclick="add('Pack Basic',2500)">Ajouter</button>
+  </div>
+
+  <div class="card">
+    <h3>Pack Premium</h3>
+    <h2 class="price">5000</h2>
+    <button onclick="add('Pack Premium',5000)">Ajouter</button>
+  </div>
+
+</div>
+
+<script>
+
+/* ================= USER ================= */
+function user(){
+  return localStorage.getItem("connectedUser");
+}
+
+/* ================= COINS ================= */
+function getCoins(){
+  const u = user();
+  if(!u) return 0;
+  return parseInt(localStorage.getItem(u+"_coins") || 0);
+}
+
+function setCoins(v){
+  const u = user();
+  if(!u) return;
+  localStorage.setItem(u+"_coins", v);
+}
+
+/* ================= UI COINS ================= */
+function updateCoinsUI(){
+  document.getElementById("coinsUI").textContent = getCoins();
+}
+setInterval(updateCoinsUI, 500);
+window.addEventListener("DOMContentLoaded", updateCoinsUI);
+
+/* ================= CART ================= */
+let cart = [];
+
+function add(name, price){
+  cart.push({name, price});
+  render();
+}
+
+function remove(i){
+  cart.splice(i,1);
+  render();
+}
+
+function render(){
+
+  let box = document.getElementById("items");
+  let total = 0;
+
+  box.innerHTML = "";
+
+  cart.forEach((c,i)=>{
+    total += c.price;
+
+    box.innerHTML += `
+      <div>
+        ${c.name} - ${c.price}
+        <button onclick="remove(${i})">X</button>
+      </div>
+    `;
+  });
+
+  document.getElementById("total").textContent = total;
+  document.getElementById("count").textContent = cart.length;
+}
+
+/* ================= CHECKOUT ================= */
+function checkout(){
+
+  const u = user();
+
+  if(!u){
+    alert("❌ Connecte-toi pour commander !");
+    return;
+  }
+
+  if(cart.length === 0){
+    alert("❌ Panier vide !");
+    return;
+  }
+
+  let total = cart.reduce((a,b)=>a+b.price,0);
+  let coins = getCoins();
+
+  if(coins < total){
+    alert("❌ Pas assez de coins !");
+    return;
+  }
+
+  // 💰 retrait coins
+  coins -= total;
+  setCoins(coins);
+
+  // 📦 commande admin
+  let orders = JSON.parse(localStorage.getItem("webcore_orders") || "[]");
+
+  orders.push({
+    id: Date.now(),
+    user: u,
+    items: cart,
+    total: total,
+    status: "pending",
+    date: new Date().toLocaleString()
+  });
+
+  localStorage.setItem("webcore_orders", JSON.stringify(orders));
+
+  alert("✔ Commande envoyée !");
+
+  cart = [];
+  render();
+  updateCoinsUI();
+}
+
+</script>
+
+</body>
+</html>

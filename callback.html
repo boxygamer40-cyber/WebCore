@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Login Discord</title>
+
+<style>
+body{
+background:#0b1220;
+color:white;
+font-family:Arial;
+text-align:center;
+padding-top:100px;
+}
+
+button{
+background:#5865F2;
+border:none;
+padding:12px 20px;
+color:white;
+border-radius:10px;
+cursor:pointer;
+font-weight:bold;
+}
+
+img{
+border-radius:50%;
+margin-top:15px;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>Connexion Discord</h1>
+
+<a id="login"
+href="https://discord.com/oauth2/authorize?client_id=TON_CLIENT_ID&response_type=token&redirect_uri=TON_URL_ENCODEE&scope=identify">
+
+<button>Se connecter</button>
+
+</a>
+
+<div id="user"></div>
+
+<script>
+
+// récupérer token dans l'URL
+const hash = new URLSearchParams(window.location.hash.slice(1));
+const token = hash.get("access_token");
+
+if(token){
+localStorage.setItem("token", token);
+window.location.hash="";
+}
+
+const saved = localStorage.getItem("token");
+
+if(saved){
+
+fetch("https://discord.com/api/users/@me",{
+headers:{
+Authorization:"Bearer "+saved
+}
+})
+.then(r=>r.json())
+.then(user=>{
+
+document.getElementById("user").innerHTML=`
+<h2>Bienvenue ${user.username}</h2>
+<img width="120" src="https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png">
+<p>ID: ${user.id}</p>
+`;
+
+document.getElementById("login").style.display="none";
+
+});
+
+}
+
+</script>
+
+</body>
+</html>

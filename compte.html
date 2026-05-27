@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebCore Auth</title>
+
+<style>
+
+body{
+  margin:0;
+  font-family:Arial;
+  background:#071022;
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+/* BOX */
+
+.box{
+  width:400px;
+  background:#0f1f3d;
+  padding:25px;
+  border-radius:15px;
+  box-shadow:0 0 20px rgba(0,0,0,0.4);
+}
+
+/* TITRE */
+
+h2{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+/* INPUT */
+
+input{
+  width:100%;
+  padding:12px;
+  margin-top:12px;
+  border:none;
+  border-radius:10px;
+  box-sizing:border-box;
+  background:#13284d;
+  color:white;
+  font-size:15px;
+}
+
+input::placeholder{
+  color:#9db4d8;
+}
+
+/* BUTTON */
+
+button{
+  width:100%;
+  padding:12px;
+  margin-top:15px;
+  border:none;
+  border-radius:10px;
+  background:#1e90ff;
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+button:hover{
+  background:#1877e6;
+}
+
+/* TEXT */
+
+.switch{
+  text-align:center;
+  margin-top:15px;
+  color:#60a5fa;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.switch:hover{
+  color:#93c5fd;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h2 id="title">🔐 Login</h2>
+
+<input id="username" placeholder="Username">
+
+<input id="password" type="password" placeholder="Password">
+
+<button onclick="action()">
+  Valider
+</button>
+
+<p class="switch" onclick="toggle()">
+  Pas de compte ? S'inscrire
+</p>
+
+<p class="switch" onclick="forgotPassword()">
+  🔑 Mot de passe oublié ?
+</p>
+
+</div>
+
+<script>
+
+/* ================= MODE ================= */
+
+let mode = "login";
+
+/* ================= DATABASE ================= */
+
+const KEY = "webcore_db";
+
+let db = JSON.parse(localStorage.getItem(KEY)) || {
+  users:[]
+};
+
+function save(){
+  localStorage.setItem(KEY, JSON.stringify(db));
+}
+
+/* ================= ROLE SYSTEM ================= */
+
+function getRole(name, role){
+
+  // 👑 FOUNDER
+  if(name === "THE DOCTOR"){
+    return "founder";
+  }
+
+  return role || "user";
+}
+
+/* ================= SWITCH LOGIN / REGISTER ================= */
+
+function toggle(){
+
+  mode = (mode === "login")
+    ? "register"
+    : "login";
+
+  document.getElementById("title").innerText =
+    mode === "login"
+    ? "🔐 Login"
+    : "🆕 Register";
+
+}
+
+/* ================= MAIN ACTION ================= */
+
+function action(){
+
+  let name = username.value.trim();
+  let pass = password.value.trim();
+
+  if(!name || !pass){
+    alert("Remplis tous les champs");
+    return;
+  }
+
+  /* ================= REGISTER ================= */
+
+  if(mode === "register"){
+
+    if(db.users.find(u => u.name === name)){
+      alert("Utilisateur déjà existant");
+      return;
+    }
+
+    db.users.push({
+      name:name,
+      password:pass,
+      role:"user"
+    });
+
+    save();
+
+    alert("Compte créé avec succès !");
+
+    toggle();
+
+    return;
+  }
+
+  /* ================= LOGIN ================= */
+
+  let user = db.users.find(u =>
+    u.name === name &&
+    u.password === pass
+  );
+
+  if(!user){
+    alert("Identifiants incorrects");
+    return;
+  }
+
+  // ROLE SAFE
+  let role = getRole(user.name, user.role);
+
+  // SESSION
+  localStorage.setItem("connectedUser", user.name);
+  localStorage.setItem("role", role);
+
+  // REDIRECT
+  window.location.href = "profil/profil.html";
+
+}
+
+/* ================= FORGOT PASSWORD ================= */
+
+function forgotPassword(){
+
+  let name = prompt("Entre ton username");
+
+  if(!name) return;
+
+  let user = db.users.find(u =>
+    u.name === name
+  );
+
+  if(!user){
+    alert("Utilisateur introuvable");
+    return;
+  }
+
+  let newPass = prompt("Entre le nouveau mot de passe");
+
+  if(!newPass){
+    alert("Mot de passe invalide");
+    return;
+  }
+
+  user.password = newPass;
+
+  save();
+
+  alert("Mot de passe modifié avec succès !");
+
+}
+
+</script>
+
+</body>
+</html>

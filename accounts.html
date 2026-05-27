@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>WebCore | Accounts</title>
+<link rel="stylesheet" href="style.css">
+<style>
+
+body{
+  margin:0;
+  font-family:Arial;
+  background:#071022;
+  color:white;
+}
+
+/* HEADER */
+.header{
+  background:#0b1730;
+  padding:15px;
+  text-align:center;
+  font-weight:bold;
+}
+
+/* CONTAINER */
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+}
+
+/* CARD */
+.card{
+  background:#0f1f3d;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:10px;
+}
+
+/* SEARCH */
+input{
+  width:100%;
+  padding:10px;
+  margin-bottom:15px;
+  border:none;
+  border-radius:8px;
+}
+
+/* BUTTON */
+.btn{
+  padding:8px 12px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.del{
+  background:red;
+  color:white;
+}
+
+/* ================= AVATAR ================= */
+
+.avatar-small{
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid #1e90ff;
+}
+
+.user-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* ================= BADGES ================= */
+
+.badge{
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:8px;
+  font-size:12px;
+  font-weight:bold;
+  margin-left:5px;
+}
+
+.admin{
+  background:#1e90ff;
+  color:white;
+}
+
+.founder{
+  background:linear-gradient(45deg,gold,orange);
+  color:black;
+}
+
+.user{
+  background:#334155;
+  color:white;
+}
+
+</style>
+</head>
+
+<body>
+		<div class="navbar">
+
+  <div class="logo">
+    <img src="image.png">
+    <strong>WebCore</strong>
+  </div>
+<div class="nav-scroll">
+    <a href="accueil.html">🏠 Accueil</a>
+    <a href="services.html">⚙️ Services</a>
+    <a href="contact.html">📩 Contact</a>
+    <a href="new_users.html">🆕 Nouveaux</a>
+    <a href="dashboard.html">🔐 Admin</a>
+    <a href="événements.html">🎉 Events</a>
+    <a href="compte.html">👤 Compte</a>
+  </div>
+		</div>
+<div class="header">👤 WebCore Accounts</div>
+
+<div class="container">
+
+<input id="search" placeholder="🔍 Rechercher un utilisateur..." oninput="render()">
+
+<div id="list"></div>
+
+</div>
+
+<script>
+
+/* ================= DB ================= */
+
+const KEY = "webcore_db";
+
+let db = JSON.parse(localStorage.getItem(KEY)) || { users: [] };
+
+/* ================= COINS ================= */
+
+function getCoins(name){
+  return parseInt(localStorage.getItem(name + "_coins") || 0);
+}
+
+/* ================= AVATAR ================= */
+
+function getAvatar(name){
+
+  let img = localStorage.getItem(name + "_avatar");
+
+  if(!img){
+    return "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+  }
+
+  return img;
+}
+
+/* ================= ROLE SYSTEM ================= */
+
+function getRole(user){
+
+  // 👑 FORCE FOUNDER
+  if(user.name === "THE DOCTOR"){
+    return "founder";
+  }
+
+  return user.role || "user";
+}
+
+/* ================= RENDER ================= */
+
+function render(){
+
+  let container = document.getElementById("list");
+  let search = document.getElementById("search").value.toLowerCase();
+
+  container.innerHTML = "";
+
+  let users = db.users.filter(u =>
+    (u.name || "").toLowerCase().includes(search)
+  );
+
+  if(users.length === 0){
+    container.innerHTML = "<p>Aucun compte trouvé</p>";
+    return;
+  }
+
+  users.forEach((u, i) => {
+
+    let role = getRole(u);
+    let coins = getCoins(u.name);
+
+    let badge = "";
+
+    if(role === "admin"){
+      badge = `<span class="badge admin">ADMIN</span>`;
+    }
+
+    if(role === "founder"){
+      badge = `<span class="badge founder">FOUNDER</span>`;
+    }
+
+    if(role === "user"){
+      badge = `<span class="badge user">USER</span>`;
+    }
+
+    container.innerHTML += `
+      <div class="card">
+
+        <div class="user-row">
+
+          <img class="avatar-small" src="${getAvatar(u.name)}">
+
+          <div>
+            👤 <b>${u.name}</b> ${badge}<br>
+            🏷️ Role: ${role}
+          </div>
+
+        </div>
+
+        <br>
+
+        🪙 Coins: ${coins}<br><br>
+
+        <button class="btn del" onclick="deleteUser(${i})">
+          Supprimer
+        </button>
+
+      </div>
+    `;
+  });
+
+}
+
+/* ================= DELETE USER ================= */
+
+function deleteUser(index){
+
+  let user = db.users[index];
+
+  if(!user) return;
+
+  if(!confirm("Supprimer " + user.name + " ?")) return;
+
+  db.users.splice(index, 1);
+
+  localStorage.removeItem(user.name + "_coins");
+  localStorage.removeItem(user.name + "_avatar");
+
+  localStorage.setItem(KEY, JSON.stringify(db));
+
+  render();
+}
+
+/* ================= INIT ================= */
+
+render();
+
+</script>
+
+</body>
+</html>

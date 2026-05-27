@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>WebCore Admin Panel</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#071022;
+  color:white;
+  overflow:hidden;
+}
+
+/* HEADER */
+.header{
+  background:#0b1730;
+  padding:12px;
+  text-align:center;
+  font-weight:bold;
+}
+
+/* NAV */
+.nav{
+  display:flex;
+  gap:8px;
+  padding:10px;
+  background:#0f1f3d;
+  overflow-x:auto;
+  white-space:nowrap;
+}
+
+.nav a, .nav button{
+  background:#12345f;
+  color:white;
+  border:none;
+  padding:8px 10px;
+  border-radius:8px;
+  cursor:pointer;
+  text-decoration:none;
+  flex:0 0 auto;
+  font-size:14px;
+}
+
+/* CONTAINER FIXE */
+.container{
+  height:calc(100vh - 110px);
+  overflow:hidden;
+  padding:10px;
+}
+
+/* SECTIONS SCROLLABLES */
+.section{
+  display:none;
+  height:100%;
+  overflow-y:auto;
+}
+
+.active{display:block;}
+
+/* CARD */
+.card{
+  background:#0f1f3d;
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:10px;
+}
+
+/* INPUTS */
+input,textarea,select{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  border:none;
+  border-radius:8px;
+}
+
+/* BUTTONS */
+.add{background:#1e90ff;color:white;border:none;padding:10px;border-radius:8px;cursor:pointer;margin-top:8px;}
+.del{background:red;color:white;border:none;padding:10px;border-radius:8px;cursor:pointer;margin-top:8px;}
+
+/* LOGOUT */
+.logout{
+  position:fixed;
+  bottom:15px;
+  right:15px;
+  background:red;
+  color:white;
+  border:none;
+  padding:10px;
+  border-radius:10px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">⚙️ WEBCORE ADMIN PANEL</div>
+
+<div class="nav">
+  <button onclick="show('dashboard')">📊 Stats</button>
+  <button onclick="show('users')">👥 Users</button>
+  <button onclick="show('events')">🎉 Events</button>
+  <button onclick="show('orders')">🛒 Orders</button>
+  <button onclick="show('prix')">💰 Prix</button>
+
+  <a href="chat.html">💬 Chat</a>
+  <a href="accounts.html">👤 Comptes</a>
+</div>
+
+<div class="container">
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="section active">
+  <div class="card">
+    <h2>📊 Dashboard</h2>
+    <p>Users: <span id="uCount">0</span></p>
+    <p>Events: <span id="eCount">0</span></p>
+    <p>Orders: <span id="oCount">0</span></p>
+    <p>Chat: <span id="cCount">0</span></p>
+  </div>
+</div>
+
+<!-- USERS -->
+<div id="users" class="section">
+
+  <div class="card">
+    <h2>👥 Users</h2>
+
+    <input id="uName" placeholder="Nom">
+    <select id="uRole">
+      <option>user</option>
+      <option>admin</option>
+      <option>founder</option>
+    </select>
+
+    <button class="add" onclick="addUser()">Ajouter</button>
+
+    <div id="userList"></div>
+  </div>
+
+  <div class="card">
+    <h2>🪙 Coins</h2>
+
+    <input id="coinUser" placeholder="Pseudo">
+    <input id="coinAmount" type="number" placeholder="Montant">
+
+    <button class="add" onclick="addCoins()">➕ Ajouter</button>
+    <button class="del" onclick="removeCoins()">➖ Retirer</button>
+
+    <p id="result"></p>
+  </div>
+
+</div>
+
+<!-- EVENTS -->
+<div id="events" class="section">
+  <div class="card">
+    <h2>🎉 Events</h2>
+
+    <input id="eTitle" placeholder="Titre">
+    <textarea id="eDesc" placeholder="Description"></textarea>
+    <input id="eDate" type="date">
+    <input id="eTime" type="time">
+
+    <button class="add" onclick="addEvent()">Ajouter</button>
+
+    <div id="eventList"></div>
+  </div>
+</div>
+
+<!-- ORDERS -->
+<div id="orders" class="section">
+  <div class="card">
+    <h2>🛒 Commandes (Live)</h2>
+    <div id="orderList"></div>
+  </div>
+</div>
+
+<!-- PRIX -->
+<div id="prix" class="section">
+
+  <div class="card">
+    <h2>💰 Prix Site</h2>
+
+    <input id="p1" type="number" placeholder="Free">
+    <input id="p2" type="number" placeholder="Vitrine">
+    <input id="p3" type="number" placeholder="Pro">
+    <input id="p4" type="number" placeholder="Pack Basic">
+    <input id="p5" type="number" placeholder="Pack Premium">
+
+    <button class="add" onclick="savePrices()">Sauvegarder</button>
+  </div>
+
+  <div class="card">
+    <h2>💬 Prix Discord</h2>
+
+    <input id="d1" type="number" placeholder="Basic">
+    <input id="d2" type="number" placeholder="Pro">
+    <input id="d3" type="number" placeholder="Premium">
+    <input id="d4" type="number" placeholder="Moddé">
+
+    <button class="add" onclick="saveDiscordPrices()">Sauvegarder</button>
+  </div>
+
+</div>
+
+</div>
+
+<button class="logout" onclick="logout()">Logout</button>
+
+<script>
+
+const DB_KEY = "webcore_db";
+const ORDER_KEY = "webcore_orders";
+
+/* DB */
+let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
+  users: [],
+  events: [],
+  chat: []
+};
+
+function saveDB(){
+  localStorage.setItem(DB_KEY, JSON.stringify(db));
+}
+
+/* NAV */
+function show(id){
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  render();
+}
+
+/* USERS */
+function addUser(){
+  let name = uName.value;
+  let role = uRole.value;
+
+  if(!name) return;
+
+  db.users.push({name, role});
+  saveDB();
+  render();
+}
+
+function delUser(i){
+  db.users.splice(i,1);
+  saveDB();
+  render();
+}
+
+/* COINS */
+function getCoins(u){
+  return parseInt(localStorage.getItem(u+"_coins") || 0);
+}
+
+function setCoins(u,v){
+  localStorage.setItem(u+"_coins", v);
+}
+
+function addCoins(){
+  let u = coinUser.value;
+  let a = parseInt(coinAmount.value);
+
+  if(!u || isNaN(a)) return;
+
+  setCoins(u, getCoins(u) + a);
+  result.innerText = "✔ +" + a;
+}
+
+function removeCoins(){
+  let u = coinUser.value;
+  let a = parseInt(coinAmount.value);
+
+  if(!u || isNaN(a)) return;
+
+  let c = getCoins(u) - a;
+  if(c < 0) c = 0;
+
+  setCoins(u,c);
+  result.innerText = "❌ -" + a;
+}
+
+/* EVENTS */
+function addEvent(){
+  if(!eTitle.value) return;
+
+  db.events.push({
+    title:eTitle.value,
+    desc:eDesc.value,
+    date:eDate.value,
+    time:eTime.value
+  });
+
+  saveDB();
+  render();
+}
+
+function delEvent(i){
+  db.events.splice(i,1);
+  saveDB();
+  render();
+}
+
+/* ORDERS */
+function loadOrders(){
+  return JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
+}
+
+function saveOrders(data){
+  localStorage.setItem(ORDER_KEY, JSON.stringify(data));
+}
+
+function deleteOrder(id){
+  let orders = loadOrders().filter(o => o.id !== id);
+  saveOrders(orders);
+  render();
+}
+
+/* RENDER ORDERS */
+function renderOrders(){
+  let orders = loadOrders();
+  orderList.innerHTML = "";
+
+  if(orders.length === 0){
+    orderList.innerHTML = "<p>Aucune commande</p>";
+    return;
+  }
+
+  orders.forEach(o=>{
+    orderList.innerHTML += `
+      <div class="card">
+        🧾 ${o.id}<br>
+        👤 ${o.user}<br>
+        📦 ${o.product}<br>
+        💰 ${o.price}€<br>
+        📅 ${o.date}<br>
+        <button class="del" onclick="deleteOrder(${o.id})">Supprimer</button>
+      </div>
+    `;
+  });
+}
+
+/* PRICES */
+function savePrices(){
+  localStorage.setItem("prices", JSON.stringify({
+    p1:+p1.value,p2:+p2.value,p3:+p3.value,p4:+p4.value,p5:+p5.value
+  }));
+}
+
+function saveDiscordPrices(){
+  localStorage.setItem("discord_prices", JSON.stringify({
+    d1:+d1.value,d2:+d2.value,d3:+d3.value,d4:+d4.value
+  }));
+}
+
+/* RENDER */
+function render(){
+
+  uCount.innerText = db.users.length;
+  eCount.innerText = db.events.length;
+  oCount.innerText = loadOrders().length;
+  cCount.innerText = db.chat.length;
+
+  userList.innerHTML = "";
+  db.users.forEach((u,i)=>{
+    userList.innerHTML += `
+      <div class="card">
+        ${u.name} (${u.role})
+        <button class="del" onclick="delUser(${i})">X</button>
+      </div>
+    `;
+  });
+
+  eventList.innerHTML = "";
+  db.events.forEach((e,i)=>{
+    eventList.innerHTML += `
+      <div class="card">
+        <b>${e.title}</b><br>
+        ${e.desc}<br>
+        ${e.date} ${e.time}
+        <button class="del" onclick="delEvent(${i})">X</button>
+      </div>
+    `;
+  });
+
+  renderOrders();
+}
+
+function logout(){
+  window.location.href="accueil.html";
+}
+
+render();
+
+</script>
+
+</body>
+</html>

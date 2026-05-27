@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat RP</title>
+<link rel="stylesheet" href="style.css">
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family:Arial;
+    background:#1e1f22;
+}
+
+/* MENU */
+.menu-btn{
+    position:fixed;
+    top:15px;
+    left:15px;
+    width:40px;
+    height:40px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-around;
+    cursor:pointer;
+    z-index:2000;
+}
+
+.menu-btn span{
+    height:4px;
+    background:white;
+    border-radius:5px;
+}
+
+/* SIDEBAR */
+.sidebar{
+    position:fixed;
+    left:-260px;
+    top:0;
+    width:260px;
+    height:100%;
+    background:#2b2d31;
+    padding:15px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    transition:0.3s;
+    z-index:1500;
+}
+
+.sidebar.active{
+    left:0;
+}
+
+/* PROFILE */
+.profile{
+    margin-top:60px;
+    background:#40444b;
+    padding:12px;
+    border-radius:10px;
+    color:white;
+}
+
+#name{font-weight:bold}
+
+/* SALONS */
+.channel{
+    background:#3a3d45;
+    color:white;
+    padding:12px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.channel.active{background:#5865f2}
+
+/* CHAT */
+.chat{
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    background:#313338;
+}
+
+.chat-header{
+    height:60px;
+    background:#2b2d31;
+    color:white;
+    display:flex;
+    align-items:center;
+    padding-left:70px;
+    font-weight:bold;
+}
+
+/* MESSAGES */
+.messages{
+    flex:1;
+    overflow-y:auto;
+    padding:15px;
+    color:white;
+}
+
+.message{
+    background:#40444b;
+    padding:10px;
+    border-radius:8px;
+    margin-bottom:10px;
+}
+
+.role{
+    font-size:12px;
+    padding:3px 6px;
+    border-radius:5px;
+    margin-left:5px;
+}
+
+.fondateur{background:gold;color:black}
+.staff{background:#5865f2}
+.membre{background:gray}
+
+/* INPUT */
+.input-area{
+    height:70px;
+    background:#2b2d31;
+    display:flex;
+    gap:10px;
+    padding:10px;
+}
+
+input{
+    flex:1;
+    border:none;
+    outline:none;
+    background:#40444b;
+    color:white;
+    border-radius:8px;
+    padding:10px;
+}
+
+button{
+    width:120px;
+    border:none;
+    background:#5865f2;
+    color:white;
+    border-radius:8px;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+<div class="navbar">
+
+  <div class="logo">
+    <img src="image.png">
+    <strong>WebCore</strong>
+  </div>
+
+  <div class="nav-scroll">
+    <a href="accueil.html">🏠 Accueil</a>
+    <a href="services.html">⚙️ Services</a>
+    <a href="contact.html">📩 Contact</a>
+    <a href="new_users.html">🆕 Nouveaux</a>
+    <a href="pass_admin.html">🔐 Admin</a>
+    <a href="événements.html">🎉 Events</a>
+    <a href="compte.html">👤 Compte</a>
+  </div>
+
+</div>
+<!-- MENU -->
+<div class="menu-btn" onclick="toggleMenu()">
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
+
+<div class="sidebar" id="sidebar">
+
+    <div class="profile">
+        <div id="name">...</div>
+        <div id="role">...</div>
+    </div>
+
+    <div class="channel active" onclick="switchChannel('global',this)">🌍 Global</div>
+    <div class="channel" onclick="switchChannel('staff',this)">🛡️ Staff</div>
+    <div class="channel" onclick="switchChannel('fondateur',this)">👑 Fondateur</div>
+
+</div>
+
+<div class="chat">
+
+    <div class="chat-header" id="title">🌍 Global</div>
+
+    <div class="messages" id="messages"></div>
+
+    <div class="input-area">
+        <input id="input" placeholder="Message...">
+        <button onclick="send()">Envoyer</button>
+    </div>
+
+</div>
+
+<script>
+
+/* =========================
+   LOGIN + DÉTECTION
+========================= */
+
+let username = localStorage.getItem("username");
+let role = localStorage.getItem("role");
+
+if(!username){
+
+    username = prompt("Ton nom ?");
+    if(!username || username.trim()=="") username="Utilisateur";
+
+    const nameUpper = username.trim().toUpperCase();
+
+    role = "Membre";
+
+    /* ⭐ RÈGLE SPECIALE */
+    if(nameUpper === "THE DOCTOR"){
+        role = "Fondateur";
+    }
+    else if(username.toLowerCase().includes("admin")){
+        role = "Fondateur";
+    }
+    else if(username.toLowerCase().includes("mod")){
+        role = "Staff";
+    }
+
+    localStorage.setItem("username", username);
+    localStorage.setItem("role", role);
+}
+
+const user = {
+    name: username,
+    role: role
+};
+
+document.getElementById("name").innerText = user.name;
+document.getElementById("role").innerText = user.role;
+
+/* =========================
+   MENU
+========================= */
+
+function toggleMenu(){
+    document.getElementById("sidebar").classList.toggle("active");
+}
+
+/* =========================
+   SALONS STORAGE
+========================= */
+
+let current = "global";
+
+function get(c){
+    return JSON.parse(localStorage.getItem("chat_"+c)) || [];
+}
+
+function save(c,data){
+    localStorage.setItem("chat_"+c, JSON.stringify(data));
+}
+
+/* =========================
+   LOAD CHAT
+========================= */
+
+function load(){
+
+    let box = document.getElementById("messages");
+    box.innerHTML = "";
+
+    get(current).forEach(m=>{
+
+        let div=document.createElement("div");
+        div.className="message";
+
+        let cls="membre";
+        if(m.role=="Staff") cls="staff";
+        if(m.role=="Fondateur") cls="fondateur";
+
+        div.innerHTML=`
+        <b>${m.user}</b>
+        <span class="role ${cls}">${m.role}</span>
+        <br><br>${m.text}`;
+
+        box.appendChild(div);
+    });
+
+    box.scrollTop=box.scrollHeight;
+}
+
+/* =========================
+   SWITCH SALON
+========================= */
+
+function switchChannel(c,el){
+
+    current=c;
+
+    document.querySelectorAll(".channel")
+    .forEach(x=>x.classList.remove("active"));
+
+    el.classList.add("active");
+
+    document.getElementById("title").innerText =
+    c=="global"?"🌍 Global":c=="staff"?"🛡️ Staff":"👑 Fondateur";
+
+    load();
+    document.getElementById("sidebar").classList.remove("active");
+}
+
+/* =========================
+   SEND MESSAGE
+========================= */
+
+function send(){
+
+    let input=document.getElementById("input");
+    let text=input.value.trim();
+
+    if(text=="") return;
+
+    let msgs=get(current);
+
+    msgs.push({
+        user:user.name,
+        role:user.role,
+        text:text
+    });
+
+    save(current,msgs);
+
+    input.value="";
+    load();
+}
+
+/* ENTER */
+document.getElementById("input").addEventListener("keydown",e=>{
+    if(e.key=="Enter") send();
+});
+
+/* START */
+load();
+
+</script>
+
+</body>
+</html>

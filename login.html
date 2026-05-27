@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Login WebCore</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#070b18;
+  color:white;
+}
+
+.card{
+  max-width:400px;
+  margin:120px auto;
+  background:#0f1932;
+  padding:20px;
+  border-radius:12px;
+  border:1px solid #1f2a44;
+}
+
+input,button{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:8px;
+  border:none;
+}
+
+input{
+  background:#0b1224;
+  color:white;
+  border:1px solid #1f2a44;
+}
+
+button{
+  background:#2f7cff;
+  color:white;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>🔐 Login</h2>
+
+  <input id="user" placeholder="user">
+  <input id="pass" type="password" placeholder="password">
+
+  <button onclick="login()">Connexion</button>
+		<button onclick="logont()">retour contact</button>
+</div>
+
+<script>
+
+function login(){
+
+  const u = user.value;
+  const p = pass.value;
+
+  if(p!=="1234"){
+    alert("❌ mauvais mdp");
+    return;
+  }
+
+  if(u==="client"){
+    localStorage.setItem("role","client");
+    location.href="client.html";
+  }
+
+  else if(u==="admin"){
+    localStorage.setItem("role","admin");
+    location.href="admin.html";
+  }
+
+  else if(u==="founder"){
+    localStorage.setItem("role","founder");
+    location.href="admin.html";
+  }
+
+  else{
+    alert("❌ user invalide");
+  }
+}
+
+		function logont(){
+				location.href="contact.html";
+		}
+</script>
+
+</body>
+</html>

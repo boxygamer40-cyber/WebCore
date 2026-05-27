@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>WebCore Login</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#071022;
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.card{
+  background:#0f1f3d;
+  padding:20px;
+  border-radius:10px;
+  width:320px;
+}
+
+input,button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border:none;
+  border-radius:8px;
+}
+
+button{
+  background:#0077ff;
+  color:white;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>🔐 Login WebCore</h2>
+
+  <input id="username" placeholder="Utilisateur">
+  <input id="password" type="password" placeholder="Mot de passe">
+
+  <button onclick="login()">Se connecter</button>
+
+  <p id="msg"></p>
+</div>
+
+<script>
+/* 👤 USERS DATABASE (DEMO) */
+const users = [
+  { username:"THE DOCTOR", password:"1234", role:"fondateur" },
+  { username:"owner", password:"root", role:"founder" },
+  { username:"player", password:"1111", role:"user" }
+];
+
+function login(){
+
+  const u = document.getElementById("username").value;
+  const p = document.getElementById("password").value;
+  const msg = document.getElementById("msg");
+
+  const found = users.find(x => x.username === u && x.password === p);
+
+  if(!found){
+    msg.innerText = "❌ Identifiants incorrects";
+    return;
+  }
+
+  localStorage.setItem("currentUser", JSON.stringify({
+    name: found.username,
+    role: found.role
+  }));
+
+  window.location.href = "dashboard.html";
+}
+</script>
+
+</body>
+</html>

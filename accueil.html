@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebCore | Blue System</title>
+
+<link rel="stylesheet" href="style.css">
+
+
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<div class="navbar">
+
+  <div class="logo">
+    <img src="image.png">
+    <strong>WebCore</strong>
+  </div>
+
+  <div class="nav-scroll">
+    <a href="accueil.html">🏠 Accueil</a>
+    <a href="services.html">⚙️ Services</a>
+    <a href="contact.html">📩 Contact</a>
+    <a href="new_users.html">🆕 Nouveaux</a>
+    <a href="pass_admin.html">🔐 Admin</a>
+    <a href="événements.html">🎉 Events</a>
+  </div>
+
+</div>
+
+<!-- ================= HERO ================= -->
+<div class="hero">
+  <h1>WebCore System</h1>
+</div>
+
+<!-- ================= CONTENT ================= -->
+<div class="card">
+  <h2>🆕 Nouveaux</h2>
+  <p>Découvre WebCore et apprends à utiliser nos services facilement.</p>
+  <a href="new_users.html" class="btn">Commencer</a>
+</div>
+
+<div class="grid">
+
+  <div class="card">
+    <h2>🌐 Sites Web</h2>
+    <p>Sites rapides, modernes et responsive pour tous projets.</p>
+    <a href="site_web.html" class="btn">Commander</a>
+  </div>
+
+  <div class="card">
+    <h2>💬 Discord</h2>
+    <p>Serveurs organisés, sécurisés et professionnels.</p>
+    <a href="discord.html" class="btn">Commander</a>
+  </div>
+
+</div>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+© 2026 WebCore. Créer. Héberger. Innover
+</footer>
+
+<!-- ================= SCRIPT WELCOME FIX ================= -->
+<script>
+const welcome = document.getElementById("welcome-screen");
+
+window.addEventListener("load", () => {
+
+  if(localStorage.getItem("welcomeShown")){
+    welcome.style.display = "none";
+    return;
+  }
+
+  setTimeout(() => {
+    welcome.style.opacity = "0";
+
+    setTimeout(() => {
+      welcome.style.display = "none";
+      localStorage.setItem("welcomeShown", "true");
+    }, 800);
+
+  }, 3000);
+
+});
+  
+
+/* ================= USER SYSTEM ================= */
+
+let connectedUser =
+localStorage.getItem("connectedUser");
+
+/* ================= CREATE PROFILE BUTTON ================= */
+
+const nav =
+document.querySelector(".nav-scroll");
+
+if(connectedUser){
+
+    let profileButton =
+    document.createElement("a");
+
+    profileButton.href = "profil/profil.html";
+
+    profileButton.innerHTML =
+    "👤 " + connectedUser;
+
+    nav.appendChild(profileButton);
+
+}else{
+
+    let loginButton =
+    document.createElement("a");
+
+    loginButton.href = "../accueil.html";
+
+    loginButton.innerHTML =
+    "🔐 Connexion";
+
+    nav.appendChild(loginButton);
+
+}
+
+</script>
+
+</body>
+</html>

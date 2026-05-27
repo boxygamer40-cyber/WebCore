@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebCore - Services</title>
+
+<link rel="stylesheet" href="style.css">
+  
+  
+  <style>
+  
+  body {
+  padding-top: 100px;
+  }</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+
+  <div class="logo">
+    <img src="image.png" alt="logo">
+    <strong>WebCore</strong>
+  </div>
+
+  <div class="nav-scroll">
+
+    <a href="accueil.html">🏠 Accueil</a>
+    <a href="services.html">⚙️ Services</a>
+    <a href="contact.html">📩 Contact</a>
+    <a href="new_users.html">🆕 Nouveaux</a>
+    <a href="pass_admin.html">🔐 Admin</a>
+
+  </div>
+
+</div>
+
+<!-- PROMO -->
+<div class="promo-bar">
+  <div id="promoText" class="promo-text"></div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <div class="hero">
+    <h1>Nos Services WebCore</h1>
+    <p>Sites web • Discord • Bots</p>
+  </div>
+
+  <!-- WEB -->
+  <div class="section-title">🌐 Création de Sites Web</div>
+
+  <div class="grid">
+
+    <div class="card">
+      <span class="badge">Débutant</span>
+      <h3>Gratuit</h3>
+      <p>1 page simple</p>
+      <a class="btn" href="commande_site_web.html">Commander</a>
+    </div>
+
+    <div class="card">
+      <span class="badge">Populaire</span>
+      <h3>Site Vitrine</h3>
+      <p>3-5 pages modernes</p>
+      <a class="btn" href="commande_site_web.html">Commander</a>
+    </div>
+
+    <div class="card">
+      <span class="badge">🔥 PRO</span>
+      <h3>Premium</h3>
+      <p>Site complet + SEO</p>
+      <a class="btn" href="commande_site_web.html">Commander</a>
+    </div>
+
+  </div>
+
+  <!-- DISCORD -->
+  <div class="section-title">💬 Serveurs Discord</div>
+
+  <div class="grid">
+
+    <div class="card">
+      <span class="badge">Starter</span>
+      <h3>Basic</h3>
+      <p>Structure simple</p>
+      <a class="btn" href="commande_serveur.html">Commander</a>
+    </div>
+
+    <div class="card">
+      <span class="badge">Pro</span>
+      <h3>Serveur complet</h3>
+      <p>Rôles + bots</p>
+      <a class="btn" href="commande_serveur.html">Commander</a>
+    </div>
+
+    <div class="card">
+      <span class="badge">🔥 Elite</span>
+      <h3>Premium</h3>
+      <p>Automatisation totale</p>
+      <a class="btn" href="commande_serveur.html">Commander</a>
+    </div>
+
+  </div>
+
+</div>
+  <script>
+  const messages = [
+  "🔥 WebCore - Création de sites modernes",
+  "💬 Discord & bots sur mesure",
+  "🚀 Hébergement rapide et sécurisé",
+  "🎯 Support 24/7 disponible"
+];
+
+let index = 0;
+const promo = document.getElementById("promoText");
+
+function showMessage() {
+
+  // fade out
+  promo.style.opacity = 0;
+
+  setTimeout(() => {
+
+    // change text
+    promo.textContent = messages[index];
+
+    // fade in
+    promo.style.opacity = 1;
+
+    // next message
+    index++;
+
+    if(index >= messages.length) {
+      index = 0;
+    }
+
+    // pause AVANT prochain changement
+    setTimeout(showMessage, 3000); // ⬅️ pause 3 sec
+
+  }, 500); // transition fade
+
+}
+
+// start
+showMessage();
+  </script>
+<!-- FOOTER -->
+<footer>
+© 2026 WebCore - Tous droits réservés
+</footer>
+
+</body>
+</html>

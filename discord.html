@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebCore | Discord Shop</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#071022;
+  color:white;
+}
+
+/* NAV */
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px;
+  background:#0b1730;
+}
+
+.nav-scroll a{
+  color:white;
+  margin-right:10px;
+  text-decoration:none;
+  padding:8px;
+  border-radius:8px;
+  background:#12345f;
+}
+
+/* HERO */
+.hero{
+  text-align:center;
+  padding:20px;
+}
+
+/* COINS BAR */
+.cart{
+  width:90%;
+  margin:10px auto;
+  background:#0f1f3d;
+  padding:10px;
+  border-radius:10px;
+}
+
+/* GRID */
+.grid{
+  width:90%;
+  margin:auto;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:10px;
+}
+
+/* CARD */
+.card{
+  background:#0f1f3d;
+  padding:15px;
+  border-radius:10px;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border:none;
+  border-radius:8px;
+  background:#1e90ff;
+  color:white;
+  cursor:pointer;
+}
+
+/* CART ITEM */
+.item{
+  display:flex;
+  justify-content:space-between;
+  margin:5px 0;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAV -->
+<div class="navbar">
+
+  <div class="logo">
+    <img src="image.png">
+    <strong>WebCore</strong>
+  </div>
+
+  <div class="nav-scroll">
+    <a href="accueil.html">🏠 Accueil</a>
+    <a href="services.html">⚙️ Services</a>
+    <a href="contact.html">📩 Contact</a>
+    <a href="new_users.html">🆕 Nouveaux</a>
+    <a href="pass_admin.html">🔐 Admin</a>
+    <a href="événements.html">🎉 Events</a>
+    <a href="compte.html">👤 Compte</a>
+  </div>
+</div>
+<!-- HERO -->
+<div class="hero">
+  <h1>Serveurs Discord</h1>
+  <p>Setup • Premium • Automatisation</p>
+</div>
+
+<!-- USER -->
+<div class="cart">
+  🪙 Coins : <b id="userCoins">0</b> | 👤 <span id="userName">non connecté</span>
+</div>
+
+<!-- PANIER -->
+<div class="cart">
+  <h3>🛒 Panier</h3>
+  <div id="cartItems"></div>
+  <h4>Total : <span id="cartTotal">0</span> coins</h4>
+  <button onclick="checkout()">💳 Acheter</button>
+</div>
+
+<!-- SHOP -->
+<div class="grid">
+
+  <div class="card">
+    <h3>🆓 Serveur gratuit</h3>
+    <p id="p0">0 coins</p>
+    <button onclick="addToCart('Serveur gratuit', getPrice(0))">Ajouter</button>
+  </div>
+
+  <div class="card">
+    <h3>⚙️ Setup Discord</h3>
+    <p id="p1">300 coins</p>
+    <button onclick="addToCart('Setup Discord', getPrice(1))">Ajouter</button>
+  </div>
+
+  <div class="card">
+    <h3>🚀 Serveur Pro</h3>
+    <p id="p2">800 coins</p>
+    <button onclick="addToCart('Serveur Pro', getPrice(2))">Ajouter</button>
+  </div>
+
+  <div class="card">
+    <h3>💎 Premium</h3>
+    <p id="p3">1500 coins</p>
+    <button onclick="addToCart('Premium', getPrice(3))">Ajouter</button>
+  </div>
+
+</div>
+
+<script>
+
+/* ================= USER ================= */
+function getUser(){
+  return localStorage.getItem("connectedUser");
+}
+
+function getCoins(){
+  let u = getUser();
+  if(!u) return 0;
+  return parseInt(localStorage.getItem(u+"_coins") || 0);
+}
+
+function setCoins(v){
+  let u = getUser();
+  if(!u) return;
+  localStorage.setItem(u+"_coins", v);
+}
+
+document.getElementById("userName").innerText = getUser() || "non connecté";
+
+function updateCoinsUI(){
+  document.getElementById("userCoins").innerText = getCoins();
+}
+setInterval(updateCoinsUI, 1000);
+updateCoinsUI();
+
+/* ================= PRICES ================= */
+let prices = JSON.parse(localStorage.getItem("discordPrices")) || {
+  d1:0,
+  d2:300,
+  d3:800,
+  d4:1500
+};
+
+function getPrice(i){
+  return Object.values(prices)[i] || 0;
+}
+
+function updatePrices(){
+  document.getElementById("p0").innerText = getPrice(0)+" coins";
+  document.getElementById("p1").innerText = getPrice(1)+" coins";
+  document.getElementById("p2").innerText = getPrice(2)+" coins";
+  document.getElementById("p3").innerText = getPrice(3)+" coins";
+}
+
+setInterval(()=>{
+  let newP = JSON.parse(localStorage.getItem("discordPrices"));
+  if(newP){
+    prices = newP;
+    updatePrices();
+  }
+},2000);
+
+updatePrices();
+
+/* ================= CART ================= */
+let cart = [];
+
+function addToCart(name, price){
+  cart.push({name, price});
+  renderCart();
+}
+
+function removeItem(i){
+  cart.splice(i,1);
+  renderCart();
+}
+
+function renderCart(){
+  let list = document.getElementById("cartItems");
+  let total = document.getElementById("cartTotal");
+
+  list.innerHTML = "";
+  let sum = 0;
+
+  cart.forEach((item,i)=>{
+    sum += item.price;
+
+    list.innerHTML += `
+      <div class="item">
+        ${item.name} - ${item.price}
+        <button onclick="removeItem(${i})">X</button>
+      </div>
+    `;
+  });
+
+  total.innerText = sum;
+}
+
+/* ================= CHECKOUT ================= */
+function checkout(){
+
+  let user = getUser();
+
+  if(!user){
+    alert("❌ Connecte-toi !");
+    return;
+  }
+
+  if(cart.length === 0){
+    alert("Panier vide !");
+    return;
+  }
+
+  let total = cart.reduce((a,b)=>a+b.price,0);
+  let coins = getCoins();
+
+  if(coins < total){
+    alert("❌ Pas assez de coins !");
+    return;
+  }
+
+  setCoins(coins - total);
+
+  let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+
+  orders.push({
+    id: Date.now(),
+    user: user,
+    items: cart,
+    total: total,
+    type: "discord",
+    date: new Date().toLocaleString()
+  });
+
+  localStorage.setItem("orders", JSON.stringify(orders));
+
+  alert("✔ Commande envoyée admin");
+
+  cart = [];
+  renderCart();
+  updateCoinsUI();
+}
+
+</script>
+
+</body>
+</html>

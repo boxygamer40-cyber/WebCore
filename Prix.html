@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebCore - Prix</title>
+
+<style>
+/* ===================== */
+/* BASE */
+/* ===================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --nav-h: 70px;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: radial-gradient(circle at top, #081226, #000814);
+  color: white;
+  overflow-x: hidden;
+}
+
+/* Glow background */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  filter: blur(120px);
+  z-index: -1;
+}
+
+body::before {
+  top: -200px;
+  left: -200px;
+  background: rgba(0, 140, 255, 0.2);
+}
+
+body::after {
+  bottom: -200px;
+  right: -200px;
+  background: rgba(0, 90, 255, 0.15);
+}
+
+/* ===================== */
+/* NAVBAR */
+/* ===================== */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: var(--nav-h);
+  background: rgba(10, 18, 40, 0.7);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 140, 255, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 1000;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo img {
+  width: 35px;
+  border-radius: 8px;
+}
+
+.navbar a {
+  color: #cfe8ff;
+  text-decoration: none;
+  margin-left: 15px;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.navbar a:hover {
+  color: #4da3ff;
+}
+
+/* ===================== */
+/* MAIN */
+/* ===================== */
+.main {
+  padding-top: calc(var(--nav-h) + 40px);
+}
+
+/* TITLE */
+h1 {
+  text-align: center;
+  font-size: 42px;
+  margin-bottom: 40px;
+  background: linear-gradient(90deg, #4da3ff, #8ac6ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* SECTION TITLE */
+.section-title {
+  font-size: 20px;
+  margin: 40px 0 20px;
+  text-align: center;
+  color: #7fc0ff;
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  padding: 0 40px;
+}
+
+/* CARD */
+.card {
+  background: rgba(15, 25, 50, 0.7);
+  border: 1px solid rgba(0, 140, 255, 0.2);
+  border-radius: 16px;
+  padding: 20px;
+  transition: 0.3s;
+  backdrop-filter: blur(10px);
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  border-color: #4da3ff;
+  box-shadow: 0 0 25px rgba(0, 140, 255, 0.25);
+}
+
+.card h2 {
+  margin: 10px 0;
+  color: #7fc0ff;
+}
+
+.price {
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #ffffff;
+}
+
+.badge {
+  font-size: 12px;
+  padding: 4px 10px;
+  background: rgba(0, 140, 255, 0.2);
+  border: 1px solid rgba(0, 140, 255, 0.3);
+  border-radius: 20px;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+/* ===================== */
+/* FOOTER */
+/* ===================== */
+footer {
+  margin-top: 60px;
+  padding: 30px;
+  text-align: center;
+  border-top: 1px solid rgba(0, 140, 255, 0.2);
+  opacity: 0.8;
+}
+
+/* ===================== */
+/* MOBILE */
+/* ===================== */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    height: auto;
+    padding: 10px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    padding: 0 20px;
+  }
+
+  h1 {
+    font-size: 30px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <div class="logo">
+    <img src="image.png">
+    <strong>WebCore</strong>
+  </div>
+
+  <div>
+    <a href="index.html">Accueil</a>
+    <a href="services.html">Services</a>
+    <a href="prix.html">Prix</a>
+    <a href="contact.html">Contact</a>
+    <a href="pass_admin.html" style="color: #003366;">Admin</a>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<h1>Nos Prix WebCore</h1>
+
+<!-- SITES -->
+<div class="section-title">🌐 Sites Web</div>
+<div class="grid">
+  <div class="card">
+    <span class="badge">Site</span>
+    <h2>Gratuit</h2>
+    <div class="price">0 coins</div>
+    <p>1 page simple</p>
+  </div>
+
+  <div class="card">
+    <span class="badge">Site</span>
+    <h2>Vitrine</h2>
+    <div class="price">500 coins</div>
+    <p>Site propre et moderne</p>
+  </div>
+
+  <div class="card">
+    <span class="badge">Site</span>
+    <h2>Pro</h2>
+    <div class="price">1200 coins</div>
+    <p>Site complet + sections</p>
+  </div>
+
+  <div class="card">
+    <span class="badge">Site</span>
+    <h2>Premium</h2>
+    <div class="price">2500 coins</div>
+    <p>Sur mesure full design</p>
+  </div>
+</div>
+
+<!-- DISCORD -->
+<div class="section-title">💬 Discord</div>
+<div class="grid">
+  <div class="card">
+    <span class="badge">Discord</span>
+    <h2>Setup</h2>
+    <div class="price">300 coins</div>
+    <p>Serveur structuré</p>
+  </div>
+
+  <div class="card">
+    <span class="badge">Discord</span>
+    <h2>Pro</h2>
+    <div class="price">800 coins</div>
+    <p>Bots + sécurité</p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  © 2026 WebCore - Tous droits réservés
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebCore Contact</title>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+
+  <div class="logo">
+    <img src="image.png" width="40">
+    <strong>WebCore</strong>
+  </div>
+
+  <div class="nav-scroll">
+
+    <a href="accueil.html">🏠 Accueil</a>
+    <a href="services.html">⚙️ Services</a>
+    <a href="contact.html">📩 Contact</a>
+    <a href="new_users.html">🆕 Nouveaux</a>
+    <a href="pass_admin.html">🔐 Admin</a>
+
+  </div>
+    
+
+  </div>
+
+</div>
+
+<!-- HEADER -->
+<div class="header">
+
+  <h1>📩 WebCore Contact</h1>
+
+  <a class="login-btn" href="admin.html">🔐 Login</a>
+
+</div>
+
+<!-- CONTAINER -->
+<div class="container">
+
+  <!-- FORM CARD -->
+  <div class="card">
+
+    <h2>📨 Nouveau ticket</h2>
+
+    <input id="name" class="input" placeholder="Nom">
+    <input id="email" class="input" placeholder="Email">
+    <input id="subject" class="input" placeholder="Sujet">
+
+    <textarea id="reason" class="textarea" placeholder="Message"></textarea>
+
+    <button class="btn" onclick="send()">Envoyer</button>
+
+  </div>
+
+  <!-- TICKETS CARD -->
+  <div class="card">
+
+    <h2>📌 Vos tickets</h2>
+
+    <div id="list" class="ticket-list"></div>
+
+  </div>
+
+</div>
+
+<script>
+
+/* SEND */
+function send(){
+
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const subject = document.getElementById("subject").value.trim();
+  const reason = document.getElementById("reason").value.trim();
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if(!name || !email || !reason){
+    alert("❌ Champs manquants");
+    return;
+  }
+
+  if(!emailRegex.test(email)){
+    alert("❌ Email invalide");
+    return;
+  }
+
+  let msgs = JSON.parse(localStorage.getItem("msgs") || "[]");
+
+  msgs.push({
+    id: Date.now(),
+    name,
+    email,
+    subject,
+    reason,
+    priority: "basse",
+    assignedTo: null,
+    status: "open"
+  });
+
+  localStorage.setItem("msgs", JSON.stringify(msgs));
+
+  alert("✔ Ticket envoyé");
+
+  render();
+
+  document.getElementById("name").value = "";
+  document.getElementById("email").value = "";
+  document.getElementById("subject").value = "";
+  document.getElementById("reason").value = "";
+}
+
+/* RENDER */
+function render(){
+
+  let msgs = JSON.parse(localStorage.getItem("msgs") || "[]");
+
+  document.getElementById("list").innerHTML =
+  msgs.map(m => `
+
+    <div class="ticket">
+
+      <div class="ticket-id">#${m.id}</div>
+
+      <p>👤 ${m.name}</p>
+      <p>📧 ${m.email}</p>
+      <p>📌 ${m.subject}</p>
+      <p>💬 ${m.reason}</p>
+
+      <p class="status">${m.status}</p>
+      <p>🚨 ${m.priority}</p>
+      <p>🛠 ${m.assignedTo || "en attente"}</p>
+
+    </div>
+
+  `).join("");
+
+}
+
+render();
+
+</script>
+
+</body>
+</html>

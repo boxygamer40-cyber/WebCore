@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Admin Login</title>
+</head>
+
+<body>
+
+<h2>Connexion Admin</h2>
+
+<input type="password" id="mdp" placeholder="Mot de passe">
+<button onclick="login()">Connexion</button>
+
+<script>
+function login(){
+    const mdp = document.getElementById("mdp").value;
+
+    if(mdp === "1234"){
+        window.location.href = "admin.html";
+    } else {
+        alert("Mot de passe incorrect");
+    }
+}
+</script>
+
+</body>
+</html>

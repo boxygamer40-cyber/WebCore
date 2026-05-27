@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebCore | Commandes PRO</title>
+
+<style>
+/* BASE */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:Arial;
+  background:#0b1220;
+  color:white;
+}
+
+/* HEADER */
+header{
+  background:#111827;
+  padding:15px;
+  text-align:center;
+  font-size:18px;
+}
+
+/* CLIENT */
+.client{
+  max-width:800px;
+  margin:40px auto;
+  padding:20px;
+}
+
+.card{
+  background:#1e293b;
+  padding:20px;
+  border-radius:12px;
+  margin-top:15px;
+  border:1px solid #334155;
+}
+
+input,select,textarea{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  border:none;
+  border-radius:8px;
+  outline:none;
+  background:#0f172a;
+  color:white;
+}
+
+textarea{
+  resize:none;
+  height:90px;
+}
+
+/* BUTTON */
+.btn{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  background:linear-gradient(135deg,#0077ff,#4da3ff);
+  border:none;
+  color:white;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+  transition:0.2s;
+}
+
+.btn:hover{
+  transform:scale(1.02);
+}
+
+/* ADMIN BUTTON */
+.adminBtn{
+  position:fixed;
+  bottom:15px;
+  right:15px;
+  background:#3b82f6;
+  border:none;
+  padding:12px;
+  border-radius:10px;
+  color:white;
+  cursor:pointer;
+}
+
+/* LOGIN */
+#loginScreen{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.8);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+
+.loginBox{
+  width:320px;
+  background:#1e293b;
+  padding:20px;
+  border-radius:12px;
+}
+
+/* ADMIN */
+#adminPanel{
+  display:none;
+  padding:20px;
+}
+
+.menu{
+  display:flex;
+  gap:10px;
+  margin-bottom:20px;
+  flex-wrap:wrap;
+}
+
+.menu button{
+  flex:1;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#111827;
+  color:white;
+  cursor:pointer;
+}
+
+.order{
+  background:#0f172a;
+  padding:12px;
+  margin-top:10px;
+  border-radius:10px;
+  border:1px solid #334155;
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .client{
+    padding:10px;
+  }
+
+  .menu button{
+    flex:100%;
+  }
+}
+  
+  .backBtn {
+  display: inline-block;
+  margin: 15px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: white;
+  font-size: 14px;
+
+  background: linear-gradient(135deg, #003366, #0077ff);
+  border: 1px solid rgba(0,140,255,0.3);
+  box-shadow: 0 0 15px rgba(0,140,255,0.3);
+
+  transition: 0.25s;
+}
+
+.backBtn:hover {
+  transform: translateX(-5px);
+  box-shadow: 0 0 25px rgba(0,140,255,0.6);
+}
+</style>
+
+</head>
+<body>
+
+<header>🛒 WebCore - Plateforme Commandes PRO</header>
+<a href="index.html" class="backBtn">← Retour</a>
+<!-- CLIENT -->
+<div class="client">
+  <div class="card">
+    <h2>🛒 Commander un service</h2>
+
+    <input id="name" placeholder="👤 Nom">
+    <input id="contact" placeholder="📩 Discord / Email">
+
+    <select id="type">
+      <option>🎁 Offre gratuite 0 coins</option>
+      <option>💻 Site vitrine 500 coins</option>
+      <option>⚡ Rapide & Optimisé
+ 1200 coins</option>
+      <option>💰 Pack Basic 2500 coins</option>
+      <option>🚀 Pack Premium 5000 coins</option>
+    </select>
+
+    <textarea id="details" placeholder="📝 Détails du projet"></textarea>
+
+    <button class="btn" onclick="send()">📨 Envoyer commande</button>
+  </div>
+</div>
+
+<!-- ADMIN BUTTON -->
+  
+<button class="adminBtn" onclick="openLogin()">🔐 Admin</button>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="loginBox">
+    <h2>Connexion Admin</h2>
+    <input id="pass" type="password" placeholder="Mot de passe">
+    <button class="btn" onclick="login()">Connexion</button>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminPanel">
+
+  <div class="menu">
+    <button onclick="load()">📦 Commandes</button>
+    <button onclick="stats()">📊 Stats</button>
+    <button onclick="logout()">🚪 Quitter</button>
+  </div>
+
+  <div class="card" id="statsBox"></div>
+  <div id="ordersBox"></div>
+
+</div>
+
+<script>
+
+function send(){
+
+  let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+
+  orders.push({
+    name: document.getElementById("name").value,
+    contact: document.getElementById("contact").value,
+    type: document.getElementById("type").value,
+    details: document.getElementById("details").value,
+    status:"pending"
+  });
+
+  localStorage.setItem("orders", JSON.stringify(orders));
+
+  alert("✅ Commande envoyée !");
+}
+
+/* LOGIN */
+function openLogin(){
+  document.getElementById("loginScreen").style.display="flex";
+}
+
+function login(){
+  let pass = document.getElementById("pass").value;
+
+  if(pass === "admin123"){
+    document.getElementById("loginScreen").style.display="none";
+    document.getElementById("adminPanel").style.display="block";
+    load();
+  } else {
+    alert("❌ Mot de passe incorrect");
+  }
+}
+
+function logout(){
+  document.getElementById("adminPanel").style.display="none";
+}
+
+/* LOAD ORDERS */
+function load(){
+
+  let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+  let box = document.getElementById("ordersBox");
+
+  box.innerHTML = "";
+
+  orders.forEach((o,i)=>{
+
+    box.innerHTML += `
+      <div class="order">
+        👤 ${o.name}<br>
+        📩 ${o.contact}<br>
+        💻 ${o.type}<br>
+        📝 ${o.details}<br><br>
+
+        <select onchange="update(${i},this.value)">
+          <option value="pending">🟡 En attente</option>
+          <option value="progress">🔵 En cours</option>
+          <option value="done">🟢 Terminé</option>
+        </select>
+
+        <button onclick="del(${i})">🗑 Supprimer</button>
+      </div>
+    `;
+  });
+}
+
+/* UPDATE */
+function update(i,status){
+  let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+  orders[i].status = status;
+  localStorage.setItem("orders", JSON.stringify(orders));
+  load();
+}
+
+/* DELETE */
+function del(i){
+  let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+  orders.splice(i,1);
+  localStorage.setItem("orders", JSON.stringify(orders));
+  load();
+}
+
+/* STATS */
+function stats(){
+  let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+
+  document.getElementById("statsBox").innerHTML = `
+    📦 Total: ${orders.length}<br>
+    🟡 En attente: ${orders.filter(o=>o.status=="pending").length}<br>
+    🔵 En cours: ${orders.filter(o=>o.status=="progress").length}<br>
+    🟢 Terminé: ${orders.filter(o=>o.status=="done").length}
+  `;
+}
+
+</script>
+
+</body>
+</html>

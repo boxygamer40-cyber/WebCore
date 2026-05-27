@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>WebCore Calendar</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#071022;
+  color:white;
+}
+
+/* NAV */
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 20px;
+  background:#0f1f3d;
+}
+
+.logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.logo img{width:40px;height:40px;}
+
+.nav-scroll a{
+  color:white;
+  text-decoration:none;
+  margin-right:10px;
+}
+
+/* LAYOUT GLOBAL */
+.wrapper{
+  display:flex;
+  justify-content:center;
+  padding:20px;
+  gap:20px;
+  flex-wrap:wrap;
+}
+
+/* CALENDAR BOX FIXE */
+.calendar{
+  width:320px;
+  background:#0f1f3d;
+  border-radius:12px;
+  padding:10px;
+}
+
+/* HEADER */
+.calendar-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+
+.calendar-header button{
+  background:#1e90ff;
+  border:none;
+  color:white;
+  padding:5px 10px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:3px;
+  font-size:12px;
+}
+
+.day{
+  background:#132a52;
+  padding:6px;
+  text-align:center;
+  border-radius:5px;
+  cursor:pointer;
+}
+
+.day:hover{
+  background:#1e90ff;
+}
+
+.has-event{
+  background:#2b5cff;
+}
+
+/* EVENT PANEL (FIXE, SCROLL) */
+.events{
+  width:300px;
+  background:#0f1f3d;
+  border-radius:12px;
+  padding:10px;
+  max-height:350px;
+  overflow-y:auto;
+}
+
+.event{
+  background:#132a52;
+  padding:8px;
+  border-radius:8px;
+  margin-top:8px;
+}
+
+.title{
+  font-weight:bold;
+}
+
+.small{
+  font-size:12px;
+  color:#aaa;
+}
+
+.empty{
+  text-align:center;
+  color:#aaa;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAV -->
+<div class="navbar">
+  <div class="logo">
+    <img src="image.png">
+    <span>WebCore</span>
+  </div>
+
+  <div class="nav-scroll">
+    <a href="accueil.html">🏠 Accueil</a>
+    <a href="services.html">⚙️ Services</a>
+    <a href="contact.html">📩 Contact</a>
+    <a href="new_users.html">🆕 Nouveaux</a>
+    <a href="pass_admin.html">🔐 Admin</a>
+    <a href="événements.html">🎉 Events</a>
+  </div>
+</div>
+
+<!-- WRAPPER COMPACT -->
+<div class="wrapper">
+
+  <!-- CALENDAR -->
+  <div class="calendar">
+
+    <div class="calendar-header">
+      <button onclick="prevMonth()">⬅</button>
+      <span id="monthLabel"></span>
+      <button onclick="nextMonth()">➡</button>
+    </div>
+
+    <div class="grid" id="grid"></div>
+
+  </div>
+
+  <!-- EVENTS PANEL -->
+  <div class="events" id="eventsBox">
+    <p class="empty">Clique un jour</p>
+  </div>
+
+</div>
+
+<script>
+
+const KEY = "webcore_db";
+let db = JSON.parse(localStorage.getItem(KEY)) || {events:[]};
+
+let current = new Date();
+
+const months = [
+"Jan","Fév","Mar","Avr","Mai","Juin",
+"Juil","Août","Sep","Oct","Nov","Déc"
+];
+
+/* RENDER CALENDAR */
+function render(){
+
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+
+  let y = current.getFullYear();
+  let m = current.getMonth();
+
+  document.getElementById("monthLabel").innerText =
+    months[m] + " " + y;
+
+  let first = new Date(y,m,1).getDay();
+  let days = new Date(y,m+1,0).getDate();
+
+  for(let i=0;i<first;i++){
+    grid.innerHTML += `<div></div>`;
+  }
+
+  for(let d=1;d<=days;d++){
+
+    let date = `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+
+    let has = db.events.some(e=>e.date === date);
+
+    grid.innerHTML += `
+      <div class="day ${has?'has-event':''}" onclick="show(date='${date}')">
+        ${d}
+      </div>
+    `;
+  }
+}
+
+/* SHOW EVENTS */
+function show(date){
+
+  let box = document.getElementById("eventsBox");
+  let ev = db.events.filter(e=>e.date===date);
+
+  box.innerHTML = `<h3>${date}</h3>`;
+
+  if(ev.length===0){
+    box.innerHTML += `<p class="empty">Aucun event</p>`;
+    return;
+  }
+
+  ev.forEach(e=>{
+    box.innerHTML += `
+      <div class="event">
+        <div class="title">${e.title}</div>
+        <div>${e.desc}</div>
+        <div class="small">⏰ ${e.time}</div>
+      </div>
+    `;
+  });
+
+}
+
+/* MONTH NAV */
+function nextMonth(){
+  current.setMonth(current.getMonth()+1);
+  render();
+}
+
+function prevMonth(){
+  current.setMonth(current.getMonth()-1);
+  render();
+}
+
+render();
+
+</script>
+
+</body>
+</html>

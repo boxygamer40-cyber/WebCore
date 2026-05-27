@@ -1,0 +1,37 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: Arial;
+}
+
+body{
+    background:#0a0a3a;
+    color:white;
+}
+
+header{
+    background:#000070;
+    padding:20px;
+    text-align:center;
+}
+
+.container{
+    display:flex;
+    gap:20px;
+    justify-content:center;
+    padding:40px;
+}
+
+.card{
+    background:#111;
+    padding:20px;
+    border-radius:10px;
+    flex:1;
+    text-align:center;
+}
+
+.card h3{
+    color:orange;
+    margin-bottom:10px;
+}
