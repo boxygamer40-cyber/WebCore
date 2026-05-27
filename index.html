@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebCore Intro</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:black;
+  color:white;
+}
+
+/* ================= INTRO ================= */
+#intro{
+  position:fixed;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:black;
+  z-index:99999;
+}
+
+.box{
+  text-align:center;
+}
+
+.box img{
+  width:140px;
+  filter:drop-shadow(0 0 25px #1e90ff);
+}
+
+.box h1{
+  font-size:50px;
+  letter-spacing:10px;
+}
+
+/* bouton */
+button{
+  margin-top:20px;
+  padding:12px 20px;
+  border:none;
+  border-radius:8px;
+  background:#1e90ff;
+  color:white;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div id="intro">
+
+  <div class="box">
+    <img src="image.png">
+    <h1>WEBCORE</h1>
+    <p>Blue System</p>
+
+    <button id="start">▶ Démarrer</button>
+  </div>
+
+</div>
+
+<!-- SON MP4 -->
+<video id="sound" src="intro.mp4" style="display:none;"></video>
+
+<script>
+
+const intro = document.getElementById("intro");
+const btn = document.getElementById("start");
+const sound = document.getElementById("sound");
+
+btn.addEventListener("click", () => {
+
+  sound.volume = 0.5;
+  sound.play().catch(()=>{});
+
+  // attendre fin du son (ou 5 sec max)
+  setTimeout(() => {
+
+    sound.pause();
+    sound.currentTime = 0;
+
+    // 🔥 REDIRECTION VERS ACCUEIL
+    window.location.href = "compte.html";
+
+  }, 5000);
+
+});
+
+</script>
+
+</body>
+</html>
